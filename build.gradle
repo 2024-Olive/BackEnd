@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'com.cj'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	// spring boot starters
+	// MVC 기반으로 웹 애플리케이션 개발이 가능하게 하는 web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+	// 데이터베이스와의 상호작용을 쉽게 만들어주는 jpa
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// 인증과 인가 기능을 추가하며 보안 관련 기능을 제공하게 해주는 security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+	// 애플리케이션 테스트를 위한 다양한 테스트 도구를 제공하는 test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// 반복적인 코드를 줄여주는 annotation 기반의 코드 생성을 돕는 lombok
+    compileOnly 'org.projectlombok:lombok'
+
+	// mysql과 java 애플리케이션을 연결하는 jdbc 라이브러리
+    runtimeOnly 'com.mysql:mysql-connector-j'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
