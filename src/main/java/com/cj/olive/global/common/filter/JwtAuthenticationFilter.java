@@ -104,7 +104,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } else if (failed instanceof UsernameNotFoundException) {
             errorMessage = "가입되지 않은 아이디입니다.";
         } else if (failed instanceof BadCredentialsException) {
-            errorMessage = "아이디 또는 비밀번호가 잘못되었습니다.";
+            errorMessage = "비밀번호가 잘못되었습니다.";
         } else {
             errorMessage = "로그인에 실패하였습니다. " + failed.getMessage();
         }
