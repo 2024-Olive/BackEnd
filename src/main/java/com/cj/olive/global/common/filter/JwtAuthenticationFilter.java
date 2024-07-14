@@ -10,13 +10,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -24,7 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -32,15 +34,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private final JwtUtil jwtUtil;
 
-    @Value("${jwt.secret}")
-    private String secret;
-
-    @Value("${jwt.expiration}")
-    private String expiration;
-
-
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 
         // 요청의 본문을 읽어서 UserReqDto 객체로 변환
         LoginReqDto authRequest;
@@ -64,6 +59,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             //token에 담은 검증을 위한 AuthenticationManager로 전달
             return authenticationManager.authenticate(authToken);
 
+        } catch (UsernameNotFoundException e) {
+            log.error("Username not found: " + e.getMessage());
+            unsuccessfulAuthentication(request, response, new UsernameNotFoundException("가입되지 않은 아이디입니다.", e));
+            return null;
+        } catch (AuthenticationException e) {
+            log.error("Authentication failed: " + e.getMessage());
+            unsuccessfulAuthentication(request, response, e);
+            return null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -101,6 +104,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         if (failed instanceof AuthenticationServiceException) {
             errorMessage = "아이디 혹은 비밀번호가 오지 않았습니다.";
             statusCode = HttpServletResponse.SC_BAD_REQUEST;
+        } else if (failed instanceof UsernameNotFoundException) {
+            errorMessage = "가입되지 않은 아이디입니다.";
+        } else if (failed instanceof BadCredentialsException) {
+            errorMessage = "아이디 또는 비밀번호가 잘못되었습니다.";
         } else {
             errorMessage = "로그인에 실패하였습니다. " + failed.getMessage();
         }
