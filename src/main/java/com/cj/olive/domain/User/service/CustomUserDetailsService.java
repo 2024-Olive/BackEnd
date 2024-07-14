@@ -1,8 +1,8 @@
 package com.cj.olive.domain.User.service;
 
-import com.cj.olive.domain.User.model.CustomUserDetails;
 import com.cj.olive.domain.User.entity.User;
 import com.cj.olive.domain.User.error.UserErrorCode;
+import com.cj.olive.domain.User.model.CustomUserDetails;
 import com.cj.olive.domain.User.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
