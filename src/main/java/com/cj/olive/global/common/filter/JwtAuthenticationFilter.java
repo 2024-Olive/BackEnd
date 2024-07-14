@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -60,11 +59,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return authenticationManager.authenticate(authToken);
 
         } catch (UsernameNotFoundException e) {
-            log.error("Username not found: " + e.getMessage());
-            unsuccessfulAuthentication(request, response, new UsernameNotFoundException("가입되지 않은 아이디입니다.", e));
+            unsuccessfulAuthentication(request, response, new UsernameNotFoundException(e.getMessage(), e));
             return null;
         } catch (AuthenticationException e) {
-            log.error("Authentication failed: " + e.getMessage());
             unsuccessfulAuthentication(request, response, e);
             return null;
         } catch (IOException e) {
