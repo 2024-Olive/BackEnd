@@ -25,9 +25,9 @@ public class UserController {
     }
 
     @PatchMapping("change-role")
-    public ResponseEntity<ResponseDto> changeRole(@RequestParam(name = "userId") String userName, @RequestParam(name = "role") String role) {
+    public ResponseEntity<ResponseDto> changeRole(@RequestParam(name = "username") String username, @RequestParam(name = "role") String role) {
 
-        String roleChanged = userService.changeRole(userName, role);
+        String roleChanged = userService.changeRole(username, role);
 
         return ResponseEntity.status(201).body(DataResponseDto.of(roleChanged, 200));
     }
