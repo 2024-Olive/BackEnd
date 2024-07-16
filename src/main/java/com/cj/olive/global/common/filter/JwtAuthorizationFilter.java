@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -44,13 +45,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             String username = jwtUtil.getUsername(token);
             String roleString = jwtUtil.getRole(token);
-
-            roleString = roleString.substring(5);
-            System.out.println(roleString);
-
-
             UserTypeEnum role = UserTypeEnum.USER;
-            if (roleString.equals(UserTypeEnum.ADMIN.name())) {
+
+            if(roleString.equals(UserTypeEnum.ADMIN.name())){
                 role = UserTypeEnum.ADMIN;
             }
 
