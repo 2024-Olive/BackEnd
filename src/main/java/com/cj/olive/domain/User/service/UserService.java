@@ -67,11 +67,14 @@ public class UserService {
         User user = userRepository.findByUsername(userName)
                 .orElseThrow(() -> new AppException(GlobalErrorCode.USER_NOT_FOUND));
 
-        if(Objects.equals(role, "ADMIN")){
+        if(Objects.equals(role, UserTypeEnum.ADMIN.name())){
             user.updateUserType(UserTypeEnum.ADMIN);
         }
-        else{
+        else if(Objects.equals(role, UserTypeEnum.USER.name())){
             user.updateUserType(UserTypeEnum.USER);
+        }
+        else{
+            throw new AppException(UserErrorCode.NONE_USER_TYPE);
         }
 
         return "권한이 "+user.getUserType()+"으로 변경되었습니다.";
