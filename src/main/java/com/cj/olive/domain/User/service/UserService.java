@@ -23,7 +23,7 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public UserResDto signUp(UserReqDto userReqDto) {
+    public void signUp(UserReqDto userReqDto) {
         // 아이디 중복 검사
         if (userRepository.existsByUsername(userReqDto.getUsername())) {
             throw new AppException(UserErrorCode.ID_ALREADY_EXIST);
@@ -45,8 +45,15 @@ public class UserService {
         if (user.getId() == 1) {
             user.updateUserType(UserTypeEnum.ADMIN);
         }
+    }
 
-        return new UserResDto(user);
+    @Transactional
+    public UserResDto getUserInfo() {
+
+        // 요청한 사용자 id
+        User requestUser = getRequestUser();
+
+        return new UserResDto(requestUser);
     }
 
     @Transactional

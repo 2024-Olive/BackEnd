@@ -20,9 +20,16 @@ public class UserController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<ResponseDto> signUp(@RequestBody @Valid UserReqDto userReqDto) {
-        UserResDto userResDto = userService.signUp(userReqDto);
+        userService.signUp(userReqDto);
 
-        return ResponseEntity.status(201).body(DataResponseDto.of(userResDto, 201));
+        return ResponseEntity.status(201).body(DataResponseDto.of(201));
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseDto> getUserInfo() {
+        UserResDto userResDto = userService.getUserInfo();
+
+        return ResponseEntity.status(200).body(DataResponseDto.of(userResDto, 200));
     }
 
     @PatchMapping("/change-role")
