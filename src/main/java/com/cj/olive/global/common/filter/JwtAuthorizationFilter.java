@@ -1,6 +1,7 @@
 package com.cj.olive.global.common.filter;
 
 import com.cj.olive.domain.User.entity.User;
+import com.cj.olive.domain.User.error.UserErrorCode;
 import com.cj.olive.domain.User.model.CustomUserDetails;
 import com.cj.olive.domain.User.model.UserTypeEnum;
 import com.cj.olive.global.common.ResponseDto;
@@ -28,9 +29,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader("Authorization");
 
+        String requestURI = request.getRequestURI();
+        boolean isSignUpOrSignIn = requestURI.equals("/api/v1/user/sign-up") || requestURI.equals("/api/v1/user/sign-in");
+
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            System.out.println("token null");
-            filterChain.doFilter(request, response);
+            if (!isSignUpOrSignIn) {
+                ResponseDto responseDto = ResponseDto.of(400, UserErrorCode.ACCESS_TOKEN_REQUIRED.getMessage());
+                jwtUtil.writeResponse(response, responseDto, HttpServletResponse.SC_UNAUTHORIZED);
+            } else {
+                filterChain.doFilter(request, response);
+            }
             return;
         }
 
