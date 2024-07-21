@@ -35,6 +35,8 @@ public class User extends BaseTime {
 
     private String deviceToken;
 
+    private int threshold;
+
     @Enumerated(EnumType.STRING)
     private UserTypeEnum userType;
 
@@ -45,11 +47,22 @@ public class User extends BaseTime {
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.userType = userType;
+        // TODO: 추후에 나이 수집해서 나이별 심박수 정상 범위 체크할지 고민하기
+        this.threshold = 100;
     }
 
     public UserTypeEnum updateUserType(UserTypeEnum userTypeEnum) {
         this.userType = userTypeEnum;
         return this.userType;
+    }
+
+    public int updateThresholdValue(int threshold) {
+        this.threshold = threshold;
+        return this.threshold;
+    }
+
+    public Boolean isAdmin() {
+        return this.getUserType().equals(UserTypeEnum.ADMIN);
     }
 
     @Override
