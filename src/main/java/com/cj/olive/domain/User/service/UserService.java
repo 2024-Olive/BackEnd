@@ -105,6 +105,6 @@ public class UserService {
     public User getRequestUser() {
         String requestUserName = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByUsername(requestUserName)
-                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_ID_TOKEN));
+                .orElseThrow(() -> new AppException(UserErrorCode.LOGIN_FAILED));
     }
 }
