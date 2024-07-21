@@ -87,7 +87,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 응답 헤더에 추가
         response.addHeader("Authorization", "Bearer " + accessToken);
         Map<String, String> tokens = Map.of("accessToken", accessToken);
-        DataResponseDto<Map<String, String>> responseDto = DataResponseDto.of(tokens, 201, "로그인 되었습니다.");
+        DataResponseDto<Map<String, String>> responseDto = DataResponseDto.of(tokens, 200);
         jwtUtil.writeResponse(response, responseDto, HttpServletResponse.SC_CREATED);
     }
 
