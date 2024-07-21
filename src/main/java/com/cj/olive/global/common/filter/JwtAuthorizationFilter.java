@@ -1,9 +1,10 @@
 package com.cj.olive.global.common.filter;
 
-import com.cj.olive.domain.User.model.CustomUserDetails;
 import com.cj.olive.domain.User.entity.User;
+import com.cj.olive.domain.User.model.CustomUserDetails;
 import com.cj.olive.domain.User.model.UserTypeEnum;
 import com.cj.olive.global.common.ResponseDto;
+import com.cj.olive.global.error.GlobalErrorCode;
 import com.cj.olive.global.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -11,7 +12,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,7 +38,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         try {
             if (jwtUtil.isExpired(token)) {
-                ResponseDto responseDto = ResponseDto.of(401, "JWT token is expired");
+                ResponseDto responseDto = ResponseDto.of(401, GlobalErrorCode.EXPIRED_JWT.getMessage());
                 jwtUtil.writeResponse(response, responseDto, HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
@@ -47,13 +47,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             String roleString = jwtUtil.getRole(token);
             UserTypeEnum role = UserTypeEnum.USER;
 
-            if(roleString.equals(UserTypeEnum.ADMIN.name())){
+            if (roleString.equals(UserTypeEnum.ADMIN.name())) {
                 role = UserTypeEnum.ADMIN;
             }
 
             User user = User.builder()
                     .username(username)
-                    .password("temppassword")
                     .userType(role)
                     .build();
 
@@ -61,14 +60,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authToken);
         } catch (ExpiredJwtException e) {
-            ResponseDto responseDto = ResponseDto.of(401, "JWT token is expired");
+            ResponseDto responseDto = ResponseDto.of(401, GlobalErrorCode.EXPIRED_JWT.getMessage());
             jwtUtil.writeResponse(response, responseDto, HttpServletResponse.SC_UNAUTHORIZED);
             return;
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            System.out.println(e);
-            ResponseDto responseDto = ResponseDto.of(401, "Invalid JWT token");
-            jwtUtil.writeResponse(response, responseDto, HttpServletResponse.SC_UNAUTHORIZED);
+            ResponseDto responseDto = ResponseDto.of(401, GlobalErrorCode.INVALID_TOKEN.getMessage());
+            jwtUtil.writeResponse(response, responseDto, 401);
             return;
         }
 
