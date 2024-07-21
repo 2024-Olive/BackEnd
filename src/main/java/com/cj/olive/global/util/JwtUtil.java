@@ -59,4 +59,12 @@ public class JwtUtil {
             throw new RuntimeException("Failed to write response", e);
         }
     }
+
+    public String extractUsername(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
+    }
 }
