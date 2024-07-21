@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,9 +63,9 @@ public class ReportService {
         User user = userService.getRequestUser();
         List<Report> reports;
         if (user.isAdmin()) {
-            reports = reportRepository.findAll();
+            reports = reportRepository.findAllByOrderByRegTimeDesc();
         } else {
-            reports = reportRepository.findByUserId(user.getId());
+            reports = reportRepository.findByUserIdOrderByRegTimeDesc(user.getId());
         }
         return reports.stream()
                 .collect(Collectors.groupingBy(
@@ -73,11 +74,12 @@ public class ReportService {
                 ))
                 .entrySet().stream()
                 .map(entry -> new ReportSearchResDto(entry.getKey().toString(), entry.getValue()))
+                .sorted((dto1, dto2) -> LocalDate.parse(dto2.getRegDate()).compareTo(LocalDate.parse(dto1.getRegDate()))) // 최신순으로 정렬
                 .collect(Collectors.toList());
     }
 
     public ReportSearchResDto getReportsByUsername(String username) {
-        List<Report> reports = reportRepository.findByUserUsername(username);
+        List<Report> reports = reportRepository.findByUserUsernameOrderByRegTimeDesc(username);
         List<ReportSearchItemResDto> items = reports.stream()
                 .map(ReportSearchItemResDto::new)
                 .collect(Collectors.toList());
