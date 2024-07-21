@@ -11,14 +11,12 @@ import lombok.Getter;
 @Getter
 public class UserResDto {
     private String username;
-    private String password;
     private String nickname;
     private String phoneNumber;
     private UserTypeEnum userType;
 
     public UserResDto(User user) {
         this.username = user.getUsername();
-        this.password = user.getPassword();
         this.nickname = user.getNickname();
         this.phoneNumber = user.getPhoneNumber();
         this.userType = user.getUserType();
