@@ -23,9 +23,9 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public UserResDto signUp(UserReqDto userReqDto){
+    public UserResDto signUp(UserReqDto userReqDto) {
         // 아이디 중복 검사
-        if(userRepository.existsByUsername(userReqDto.getUsername())){
+        if (userRepository.existsByUsername(userReqDto.getUsername())) {
             throw new AppException(UserErrorCode.ID_ALREADY_EXIST);
         }
 
@@ -41,8 +41,8 @@ public class UserService {
                 UserTypeEnum.USER
         ));
 
-        // 첫번째 가입자면 관리자 지정해주기
-        if(user.getId()== 1){
+        // 첫번째 가입자면 관리자 지정
+        if (user.getId() == 1) {
             user.updateUserType(UserTypeEnum.ADMIN);
         }
 
@@ -50,33 +50,54 @@ public class UserService {
     }
 
     @Transactional
-    public String changeRole(String userName, String role){
+    public UserTypeEnum changeRole(String username, String role) {
 
         // 요청한 사용자 id
-        String requestUserName = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        User requestUser = userRepository.findByUsername(requestUserName)
-                .orElseThrow(() -> new AppException(UserErrorCode.LOGIN_FAILED));
+        User requestUser = getRequestUser();
 
         // 권한 체크
-        if (requestUser.getUserType() == UserTypeEnum.USER){
+        if (!requestUser.isAdmin()) {
             throw new AppException(GlobalErrorCode.ONLY_ADMIN_ACCESS);
         }
 
-        // 변경하고자 하는 회원 ID
-        User user = userRepository.findByUsername(userName)
+        // 변경하고자 하는 회원
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(GlobalErrorCode.USER_NOT_FOUND));
 
-        if(Objects.equals(role, UserTypeEnum.ADMIN.name())){
+        if (Objects.equals(role, UserTypeEnum.ADMIN.name())) {
             user.updateUserType(UserTypeEnum.ADMIN);
-        }
-        else if(Objects.equals(role, UserTypeEnum.USER.name())){
+        } else if (Objects.equals(role, UserTypeEnum.USER.name())) {
             user.updateUserType(UserTypeEnum.USER);
-        }
-        else{
+        } else {
             throw new AppException(UserErrorCode.NONE_USER_TYPE);
         }
 
-        return "권한이 "+user.getUserType()+"으로 변경되었습니다.";
+        return user.getUserType();
+    }
+
+    public int updateThreshold(String username, int threshold) {
+        // 요청한 사용자 id
+        User requestUser = getRequestUser();
+
+        // 권한 검사
+        if (!requestUser.isAdmin()) {
+            throw new AppException(GlobalErrorCode.ONLY_ADMIN_ACCESS);
+        }
+
+        // 변경하고자 하는 회원
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(GlobalErrorCode.USER_NOT_FOUND));
+
+        user.updateThresholdValue(threshold);
+
+        return user.getThreshold();
+    }
+
+
+    // 사용자 가져오기
+    public User getRequestUser() {
+        String requestUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(requestUserName)
+                .orElseThrow(() -> new AppException(UserErrorCode.INVALID_ID_TOKEN));
     }
 }

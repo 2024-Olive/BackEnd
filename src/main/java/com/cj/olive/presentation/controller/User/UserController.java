@@ -1,5 +1,6 @@
 package com.cj.olive.presentation.controller.User;
 
+import com.cj.olive.domain.User.model.UserTypeEnum;
 import com.cj.olive.domain.User.service.UserService;
 import com.cj.olive.global.common.DataResponseDto;
 import com.cj.olive.global.common.ResponseDto;
@@ -17,19 +18,25 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("sign-up")
+    @PostMapping("/sign-up")
     public ResponseEntity<ResponseDto> signUp(@RequestBody @Valid UserReqDto userReqDto) {
         UserResDto userResDto = userService.signUp(userReqDto);
 
         return ResponseEntity.status(201).body(DataResponseDto.of(userResDto, 201));
     }
 
-    @PatchMapping("change-role")
+    @PatchMapping("/change-role")
     public ResponseEntity<ResponseDto> changeRole(@RequestParam(name = "username") String username, @RequestParam(name = "role") String role) {
 
-        String roleChanged = userService.changeRole(username, role);
+        UserTypeEnum roleChanged = userService.changeRole(username, role);
 
         return ResponseEntity.status(201).body(DataResponseDto.of(roleChanged, 200));
     }
 
+    @PatchMapping("/{username}")
+    public ResponseEntity<ResponseDto> updateThreshold(@PathVariable(name = "username") String username, @RequestParam(name = "threshold") int threshold) {
+        int thresholdUpdated = userService.updateThreshold(username, threshold);
+
+        return ResponseEntity.status(201).body(DataResponseDto.of(thresholdUpdated, 200));
+    }
 }
